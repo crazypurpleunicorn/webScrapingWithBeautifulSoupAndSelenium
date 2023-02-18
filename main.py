@@ -1,0 +1,16 @@
+import functions
+from bs4 import BeautifulSoup;
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+
+firstPageUrl ="https://www.firstmallorca.com/en/search"
+beautifulSoupObjecfFirstPage=functions.getSoupObjectFromHeadlessBrowser(firstPageUrl)
+maxNumberOfPropertyWebsites=functions.scrapeOneTimeMaxNumberofPropertySearchWebsites(beautifulSoupObjecfFirstPage)
+listOfAllPropertySearchWebsitesLinks=functions.returnListOfAllLinksOfPropertySearchWebsitesGivenANumber(maxNumberOfPropertyWebsites)
+#functions.scrapeAndPrintAllGivenAListOfPropertySearchWebsites(listOfAllPropertySearchWebsitesLinks)
+functions.scrapeAndCreateObjects(listOfAllPropertySearchWebsitesLinks)
+
+
+print('end of  main');
+
