@@ -82,8 +82,8 @@ def resetDataBase():
         CREATE TABLE IF NOT EXISTS PROPERTIES(
         property_Id INT AUTO_INCREMENT NOT NULL UNIQUE PRIMARY KEY,
         price INT,
-        bathrooms INT NOT NULL,
-        bedrooms INT NOT NULL,
+        bathrooms INT,
+        bedrooms INT,
         realStateReference VARCHAR(50) NOT NULL UNIQUE,
         descriptionn  VARCHAR(5000),
         garage BIT NOT NULL,
@@ -130,22 +130,25 @@ def populateLocationsAndReturnPK(locationObject):
         password='Lapepagordacomemucho1997.',
         database='realStatedb'
     )
+    try:
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO LOCATIONS (locationName) VALUES (%s)"
+        cursor.execute(sqlCommand, (locationObject.locationName,))
+        connection.commit()
+        # once the data is populated I would like to extract the tuple's PK
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, locationObject.tableName)
+        return pkFromRow
 
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO LOCATIONS (locationName) VALUES (%s)"
-    cursor.execute(sqlCommand, (locationObject.locationName,))
-    connection.commit()
-    # once the data is populated I would like to extract the tuple's PK
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, locationObject.tableName)
-    return pkFromRow
-
-    connection.close()
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert Location  Data into SQL table: ', e)
 
 
 def returnPrimaryKeyLastTupleFromTable(cursor, tablename):
     try:
         sqlCommand = "SELECT LAST_INSERT_ID() FROM " + tablename
         cursor.execute(sqlCommand)
+        print(sqlCommand)
         result = cursor.fetchone()[0]
     except Exception as e:
         print("Error executing SQL query:", e)
@@ -160,116 +163,159 @@ def populateContactsAndReturnPK(contactObject):
         password='Lapepagordacomemucho1997.',
         database='realStatedb'
     )
-    telephone = contactObject.telephoneNumber
-    email = contactObject.email
-    valuesToBePassedAsTuple = (telephone, email)
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO CONTACTS (telephoneNumber,email) VALUES (%s,%s)"
-    cursor.execute(sqlCommand, valuesToBePassedAsTuple)
-    connection.commit()
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, contactObject.tableName)
-    return pkFromRow
-    connection.close()
+    try:
+        telephone = contactObject.telephoneNumber
+        email = contactObject.email
+        valuesToBePassedAsTuple = (telephone, email)
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO CONTACTS (telephoneNumber,email) VALUES (%s,%s)"
+        cursor.execute(sqlCommand, valuesToBePassedAsTuple)
+        connection.commit()
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, contactObject.tableName)
+        return pkFromRow
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert Contacts Data into SQL table: ', e)
+        primaryKeyName = contactObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,
+                                                                                                              contactObject.tableName,
+                                                                                                              primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
 
 
 def populateTypeOfProperiesAndReturnPK(typeOfPropertiesObject):
-    connection = mysql.connector.connect(
-        user='root',
-        password='Lapepagordacomemucho1997.',
-        database='realStatedb'
-    )
+    try:
+        connection = mysql.connector.connect(
+            user='root',
+            password='Lapepagordacomemucho1997.',
+            database='realStatedb'
+        )
 
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO TYPESOFPROPERTIES (typeOfPropertyName) VALUES (%s)"
-    cursor.execute(sqlCommand, (typeOfPropertiesObject.typeOfPropertyName,))
-    connection.commit()
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, typeOfPropertiesObject.tableName)
-    return pkFromRow
-    connection.close()
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO TYPESOFPROPERTIES (typeOfPropertyName) VALUES (%s)"
+        cursor.execute(sqlCommand, (typeOfPropertiesObject.typeOfPropertyName,))
+        connection.commit()
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, typeOfPropertiesObject.tableName)
+        return pkFromRow
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert TypeOfProperty Data into SQL table: ', e)
+        primaryKeyName = typeOfPropertiesObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,
+                                                                                                              typeOfPropertiesObject.tableName,
+                                                                                                              primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
+
+        return pkFromRowWhereDuplicationHappens
 
 
 def populateTransactionTypesAndReturnPk(transactionTypesObject):
-    connection = mysql.connector.connect(
-        user='root',
-        password='Lapepagordacomemucho1997.',
-        database='realStatedb'
-    )
+    try:
+        connection = mysql.connector.connect(
+            user='root',
+            password='Lapepagordacomemucho1997.',
+            database='realStatedb'
+        )
 
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO TRANSACTIONTYPES (transactionTypeName) VALUES (%s)"
-    cursor.execute(sqlCommand, (transactionTypesObject.transactionTypeName,))
-    connection.commit()
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, transactionTypesObject.tableName)
-    return pkFromRow
-    connection.close()
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO TRANSACTIONTYPES (transactionTypeName) VALUES (%s)"
+        cursor.execute(sqlCommand, (transactionTypesObject.transactionTypeName,))
+        connection.commit()
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, transactionTypesObject.tableName)
+        return pkFromRow
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert TransactionType Data into SQL table: ', e)
+        primaryKeyName = transactionTypesObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,transactionTypesObject.tableName,primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
 
 
 def populateExtrasAndReturnListPKs(ExtraObject):
-    connection = mysql.connector.connect(
-        user='root',
-        password='Lapepagordacomemucho1997.',
-        database='realStatedb'
-    )
+    try:
+        connection = mysql.connector.connect(
+            user='root',
+            password='Lapepagordacomemucho1997.',
+            database='realStatedb'
+        )
 
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO EXTRAS (extraName) VALUES (%s)"
-    cursor.execute(sqlCommand, (ExtraObject.extraName,))
-    connection.commit()
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, ExtraObject.tableName)
-    return pkFromRow
-    connection.close()
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO EXTRAS (extraName) VALUES (%s)"
+        cursor.execute(sqlCommand, (ExtraObject.extraName,))
+        connection.commit()
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, ExtraObject.tableName)
+        return pkFromRow
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert ExtraObject Data into SQL table: ', e)
+        primaryKeyName = ExtraObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,ExtraObject.tableName,primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
 
 
 def populateRealStateAgenciesAndReturnPK(realStateAgencyObject):
-    connection = mysql.connector.connect(
-        user='root',
-        password='Lapepagordacomemucho1997.',
-        database='realStatedb'
-    )
+    try:
+        connection = mysql.connector.connect(
+            user='root',
+            password='Lapepagordacomemucho1997.',
+            database='realStatedb'
+        )
 
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO REALSTATEAGENCIES (realStateAgencyName,realStateAgencyAdress,contact_Id_FK) VALUES (%s,%s,%s)"
-    realStateAgencyName = realStateAgencyObject.realStateAgencyName
-    realStateAgencyAdress = realStateAgencyObject.realStateAgencyAdress
-    contact_Id_FK = realStateAgencyObject.contact_Id_FK
-    valuesToBePassedAsTuple = (realStateAgencyName, realStateAgencyAdress, contact_Id_FK)
-    cursor.execute(sqlCommand, valuesToBePassedAsTuple)
-    connection.commit()
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, realStateAgencyObject.tableName)
-    return pkFromRow
-    connection.close()
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO REALSTATEAGENCIES (realStateAgencyName,realStateAgencyAdress,contact_Id_FK) VALUES (%s,%s,%s)"
+        realStateAgencyName = realStateAgencyObject.realStateAgencyName
+        realStateAgencyAdress = realStateAgencyObject.realStateAgencyAdress
+        contact_Id_FK = realStateAgencyObject.contact_Id_FK
+        valuesToBePassedAsTuple = (realStateAgencyName, realStateAgencyAdress, contact_Id_FK)
+        cursor.execute(sqlCommand, valuesToBePassedAsTuple)
+        connection.commit()
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, realStateAgencyObject.tableName)
+        return pkFromRow
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert RealStatAgencies Data into SQL table: ', e)
+        primaryKeyName = realStateAgencyObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,realStateAgencyObject.tableName,primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
 
 
 def populatePropertiesAndReturnPK(propertyObject):
-    connection = mysql.connector.connect(
-        user='root',
-        password='Lapepagordacomemucho1997.',
-        database='realStatedb'
-    )
+    try:
+        connection = mysql.connector.connect(
+            user='root',
+            password='Lapepagordacomemucho1997.',
+            database='realStatedb'
+        )
 
-    cursor = connection.cursor()
-    sqlCommand = "INSERT INTO PROPERTIES (price,bathrooms,bedrooms,realStateReference,descriptionn,garage,terraceArea,constructedArea,plotSizeArea,location_Id_FK,typeOfProperty_Id_FK,transactionType_Id_FK) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-    price = propertyObject.price
-    bathrooms = propertyObject.bathrooms
-    bedrooms = propertyObject.bedrooms
-    realStateReference = propertyObject.realStateReference
-    description = propertyObject.description
-    garage = propertyObject.garage
-    terraceArea = propertyObject.terraceArea
-    constructedArea = propertyObject.constructedArea
-    plotSizeArea = propertyObject.plotSizeArea
-    location_Id_FK = propertyObject.location_Id_FK
-    typeOfProperty_Id_FK = propertyObject.typeOfProperty_Id_FK
-    transactionType_Id_FK = propertyObject.transactionType_Id_FK
+        cursor = connection.cursor()
+        sqlCommand = "INSERT INTO PROPERTIES (price,bathrooms,bedrooms,realStateReference,descriptionn,garage,terraceArea,constructedArea,plotSizeArea,location_Id_FK,typeOfProperty_Id_FK,transactionType_Id_FK) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        price = propertyObject.price
+        bathrooms = propertyObject.bathrooms
+        bedrooms = propertyObject.bedrooms
+        realStateReference = propertyObject.realStateReference
+        description = propertyObject.description
+        garage = propertyObject.garage
+        terraceArea = propertyObject.terraceArea
+        constructedArea = propertyObject.constructedArea
+        plotSizeArea = propertyObject.plotSizeArea
+        location_Id_FK = propertyObject.location_Id_FK
+        typeOfProperty_Id_FK = propertyObject.typeOfProperty_Id_FK
+        transactionType_Id_FK = propertyObject.transactionType_Id_FK
 
-    valuesToBePassedAsTuple = (
-    price, bathrooms, bedrooms, realStateReference, description, garage, terraceArea, constructedArea, plotSizeArea,
-    location_Id_FK, typeOfProperty_Id_FK, transactionType_Id_FK)
-    cursor.execute(sqlCommand, valuesToBePassedAsTuple)
-    connection.commit()
-    pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, propertyObject.tableName)
-    return pkFromRow
-    connection.close()
+        valuesToBePassedAsTuple = (
+            price, bathrooms, bedrooms, realStateReference, description, garage, terraceArea, constructedArea,
+            plotSizeArea,
+            location_Id_FK, typeOfProperty_Id_FK, transactionType_Id_FK)
+        cursor.execute(sqlCommand, valuesToBePassedAsTuple)
+        connection.commit()
+        pkFromRow = returnPrimaryKeyLastTupleFromTable(cursor, propertyObject.tableName)
+        return pkFromRow
+        connection.close()
+    except mysql.connector.IntegrityError as e:
+        print('Inegrity Error trying to Insert Properties Data into SQL table: ', e)
+        primaryKeyName = propertyObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,propertyObject.tableName,primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
 
 
 def populateProperties_Extras(properties_ExtrasObject):
@@ -287,6 +333,7 @@ def populateProperties_Extras(properties_ExtrasObject):
     connection.commit()
     connection.close()
 
+
 def populateRealStateAgencies_Propertites(realStateAgencies_PropertiesObject):
     connection = mysql.connector.connect(
         user='root',
@@ -301,3 +348,32 @@ def populateRealStateAgencies_Propertites(realStateAgencies_PropertiesObject):
     cursor.execute(sqlCommand, values)
     connection.commit()
     connection.close()
+
+
+def giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(errorMessage, tableName, primaryKeyName):
+    errorMessage = str(errorMessage).replace('1062 (23000): Duplicate entry ', '')
+    # errorMessage = errorMessage.replace("\'", "")
+    errorMessage = errorMessage.split('for key ')
+    valueWhichIsDuplicated = errorMessage[0]
+    fieldWhereDuplicateHappens = errorMessage[1].replace("\'", "")
+
+    connection = mysql.connector.connect(
+        user='root',
+        password='Lapepagordacomemucho1997.',
+        database='realStatedb'
+    )
+    cursor = connection.cursor()
+    tupleVariable = (primaryKeyName, tableName, fieldWhereDuplicateHappens)
+    sqlCommand = """SELECT %s FROM %s WHERE %s = """ + valueWhichIsDuplicated
+    # sqlCommandLineconsole="""SELECT contact_Id FROM CONTACTS  WHERE contacts.telephoneNumber = '(+34) 971 007 007' """
+    newSqlCommand = (sqlCommand % tupleVariable)
+    # it seems that on the previous statment an ' ' is added at the end, don't know why
+    cursor.execute(newSqlCommand)
+
+    result = cursor.fetchone()[0]
+    connection.close()
+
+    return result
+
+
+

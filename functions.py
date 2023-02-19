@@ -256,7 +256,7 @@ def scrapeAndCreateObjects(listOfAllLinksOfPropertySearchWebsitesGivenANumber):
             garage = dictionaryOfBoxWithIcons.get("Parking")
             # Format data according to PROPERTIES
             # garage column in table PROPERTIES is BIT, so it must be a 0 or a 1
-            if garage == "'✓'":
+            if garage == '✓':
                 garage = 1
             else:
                 garage = 0
@@ -276,8 +276,10 @@ def scrapeAndCreateObjects(listOfAllLinksOfPropertySearchWebsitesGivenANumber):
                     plotSizeArea = plotSizeArea = int(plotSizeArea.replace('m', '').replace(',', ''))
                 except:
                     int(plotSizeArea.replace('m', ''))
+            if price != None:
+                price=price.replace(',','').replace('€','')
 
-                    # all TransactionType will be SELL
+            # all TransactionType will be SELL
             transactionType = "SELL"
             realStateAgencyName = 'firstMallorca'
             realStateAgencyAdress = 'fmAdress'
@@ -312,7 +314,7 @@ def scrapeAndCreateObjects(listOfAllLinksOfPropertySearchWebsitesGivenANumber):
 
             # following objects need a FK value
 
-            objectRealStateAgencies = classes.RealStateAgencies(realStateAgencyName, realStateAgencyAdress, contact_Id_FK)
+            objectRealStateAgencies = classes.RealStateAgencies(realStateAgencyName, realStateAgencyAdress,contact_Id_FK)
             # foreign key for REALSTATEAGENCIES_PROPERTIES
             realStateAgency_Id = SQL.populateRealStateAgenciesAndReturnPK(objectRealStateAgencies)
 
@@ -322,8 +324,8 @@ def scrapeAndCreateObjects(listOfAllLinksOfPropertySearchWebsitesGivenANumber):
             # foreign keys for REALSTATAGENCIES_PROPERTIES an PROPERTIES_EXTRAS
             property_Id = SQL.populatePropertiesAndReturnPK(objectProperties)
 
-            for extra_id in listOfExtrasForeignKey:
-                objectProperties_Extras = classes.Properties_Extras(property_Id, extra_Id)
+            for extra_id_FK in listOfExtrasForeignKey:
+                objectProperties_Extras = classes.Properties_Extras(property_Id, extra_id_FK)
                 SQL.populateProperties_Extras(objectProperties_Extras)
 
             objectRealStateAgencies_Properties = classes.RealStateAgencies_Properties(property_Id, realStateAgency_Id)
