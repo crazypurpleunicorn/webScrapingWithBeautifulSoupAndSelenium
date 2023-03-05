@@ -142,6 +142,9 @@ def populateLocationsAndReturnPK(locationObject):
         connection.close()
     except mysql.connector.IntegrityError as e:
         print('Inegrity Error trying to Insert Location  Data into SQL table: ', e)
+        primaryKeyName = locationObject.primaryKeyName
+        pkFromRowWhereDuplicationHappens = giveMeIntegrityErrorMessageReturnPKOfTheTupleWhereDuplicateHappens(e,locationObject.tableName,primaryKeyName)
+        return pkFromRowWhereDuplicationHappens
 
 
 def returnPrimaryKeyLastTupleFromTable(cursor, tablename):
